@@ -137,7 +137,7 @@ export const Step1: React.FC<FaceDetectionScreenProps> = (props) => {
                 <Text style={[styles.textSubTitle, textSubStyle]}>Ảnh hợp lệ là ảnh chụp ngang, rõ nét không bị mất góc</Text>
                 <TouchableOpacity onPress={() => openImagePicker('cardID')}>
                     <Image style={{ width: width, height: 200, borderRadius: 8 }}
-                        source={cardUri ? { uri: cardUri.uri } : require('../../../assest/default.png')}
+                        source={cardUri ? { uri: cardUri.uri } : { uri: 'https://www.madeireiraestrela.com.br/images/joomlart/demo/default.jpg' }}
                     />
                 </TouchableOpacity>
             </View>
@@ -159,7 +159,7 @@ export const Step1: React.FC<FaceDetectionScreenProps> = (props) => {
                 <Text style={[styles.textSubTitle, textSubStyle]}>Ảnh hợp lệ là ảnh chụp chính diện, rõ khuôn mặt</Text>
                 <TouchableOpacity onPress={() => openImagePicker('portrait')}>
                     <Image style={{ width: width, height: 300, borderRadius: 8 }}
-                        source={portraitUri ? { uri: portraitUri.uri } : require('../../../assest/default.png')}
+                        source={portraitUri ? { uri: portraitUri.uri } : { uri: 'https://www.madeireiraestrela.com.br/images/joomlart/demo/default.jpg' }}
                     />
                 </TouchableOpacity>
             </View>
