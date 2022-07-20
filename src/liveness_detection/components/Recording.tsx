@@ -9,6 +9,7 @@ import { Camera } from 'react-native-vision-camera';
 import { apiPostFormData } from '../../api/serviceHandle';
 import { LoadingModal } from '../../components/loading';
 import { RecordingGuildStep } from './RecordingGuildStep';
+import RNFS from 'react-native-fs'
 
 const deviceWidth = Dimensions.get('window').width;
 const deviceHeight = Dimensions.get('window').height;
@@ -21,6 +22,8 @@ export interface CameraRecordingProps {
     onSuccess: (score: number) => void;
 }
 const durationTime = Platform.OS === 'ios' ? 4000 : 5000;
+const LOCAL_PATH_TO_VIDEO = Platform.OS === 'ios' ? `${RNFS.DocumentDirectoryPath}/mood-pixel-${new Date().toISOString}.mp4` : `${RNFS.ExternalDirectoryPath}/mood-pixel-${new Date().toISOString}.mp4`
+
 export const CameraRecording: React.FC<CameraRecordingProps> = React.memo((props) => {
     const { onSuccess } = props;
     const [hasPermission, setHasPermission] = React.useState(false);
@@ -40,14 +43,13 @@ export const CameraRecording: React.FC<CameraRecordingProps> = React.memo((props
 
 
     const onConfirm = async (data: any) => {
-        console.log('data',data);
-        
+        console.log('data', data);
         try {
             const formdata = new FormData();
             const objVideo = {
                 uri: Platform.OS === 'ios' ? data.path.toString().replace('file://', '') : data.path,
                 type: 'video/mp4',
-                name: `video.${data.path}`,
+                name: `${data.path}.mp4`,
             };
             formdata.append('video_face', objVideo);
             formdata.append('actions', 'pitch_head,eyes,mouth');
@@ -75,6 +77,7 @@ export const CameraRecording: React.FC<CameraRecordingProps> = React.memo((props
     const onRecording = async () => {
         if (camera.current) {
             camera.current.startRecording({
+                videoCodec: 'h264',
                 fileType: 'mp4',
                 flash: 'off',
                 onRecordingFinished: (video) => onConfirm(video),
@@ -199,7 +202,7 @@ export const CameraRecording: React.FC<CameraRecordingProps> = React.memo((props
                     {renderFrame()}
                     {device != null && hasPermission ? (
                         <Camera
-                            preset="high"
+                            preset="medium"
                             ref={camera}
                             style={{ flex: 1, zIndex: 1 }}
                             device={device}
@@ -238,7 +241,7 @@ export const CameraRecording: React.FC<CameraRecordingProps> = React.memo((props
 });
 
 const styles = StyleSheet.create({
-    container:{ width: deviceWidth, backgroundColor: 'black', justifyContent: 'flex-end' },
+    container: { width: deviceWidth, backgroundColor: 'black', justifyContent: 'flex-end' },
     lable: {
         fontSize: 15,
         color: 'white',
