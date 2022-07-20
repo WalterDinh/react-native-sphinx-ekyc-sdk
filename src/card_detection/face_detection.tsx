@@ -73,7 +73,7 @@ export const FaceDetection: React.FC<FaceDetectionScreenProps> = (props) => {
     const renderItem = (item: number) => {
         switch (item) {
             case 1:
-                return <Step1 onSuccess={onSuccess} />
+                return <Step1 onSuccess={onSuccess} {...props} />
             case 2:
                 return <Step2 data={info} />
             default:

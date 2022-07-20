@@ -8,7 +8,7 @@ import { LoadingModal } from '../../components/loading';
 
 export interface FaceDetectionScreenProps {
     containerStyle?: StyleProp<any>;
-    token?: string;
+    token: string;
     textButtonStyle?: TextStyle;
     textTitleStyle?: TextStyle;
     textSubStyle?: TextStyle;

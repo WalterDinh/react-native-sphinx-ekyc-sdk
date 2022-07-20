@@ -8,8 +8,10 @@ import { CameraRecording } from './components/Recording';
 const listStep = [1, 2, 3];
 
 const screenWidth = Dimensions.get('window').width;
-
-export const LivenessDetection: React.FC<any> = (props) => {
+interface LivenessDetectionProps{
+    token: string
+}
+export const LivenessDetection: React.FC<LivenessDetectionProps> = (props) => {
     const { token } = props
     const interestRef = React.useRef<FlatList>(null);
     const [currentIndex, setCurrentIndex] = React.useState(0);
