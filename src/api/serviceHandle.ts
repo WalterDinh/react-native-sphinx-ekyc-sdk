@@ -4,7 +4,7 @@ import serviceUrls from './serviceUrl';
 const BASE_URL='http://api.sphinxjsc.com:3000/api/v1/';
 const api = create({
   baseURL: BASE_URL,
-  timeout: 60000,
+  timeout: 120000,
   withCredentials: false,
   headers: {
     'Content-type': 'application/json',

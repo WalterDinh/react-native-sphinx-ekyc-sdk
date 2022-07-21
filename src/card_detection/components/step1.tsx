@@ -51,10 +51,11 @@ export const Step1: React.FC<FaceDetectionScreenProps> = (props) => {
         onCloseModal();
         setTimeout(() => {
             ImagePicker.openPicker({
+                width: 300,
+                height: 400,
                 mediaType: 'photo',
                 includeBase64: true,
             }).then(async image => {
-                onCloseModal();
                 const base64Data = await RNFS.readFile(image.path, 'base64');
                 const data = `data:${image.mime};base64,${base64Data}`;
                 if (showModal == 'cardID') {
@@ -64,16 +65,16 @@ export const Step1: React.FC<FaceDetectionScreenProps> = (props) => {
                     setPortraitUri({ base64: base64Data, uri: data, image });
                 }
             });
-        }, 1000);
+        }, 700);
 
     };
 
-    const onCloseModal = (isError: boolean = false) => {
+    const onCloseModal = (isError: boolean = false, errorMessage?: string) => {
         setShowModal(null);
         if (isError) {
             setPortraitUri(null);
             setCardUri(null);
-            Alert.alert('Thông báo', 'Đã có lỗi xảy ra');
+            Alert.alert('Thông báo', errorMessage ?? 'Đã có lỗi xảy ra');
             if (interestRef.current) {
                 interestRef?.current.scrollTo({ animated: true, x: 0 });
             }
@@ -86,6 +87,8 @@ export const Step1: React.FC<FaceDetectionScreenProps> = (props) => {
             ImagePicker.openCamera({
                 cropping: false,
                 includeBase64: true,
+                width: 300,
+                height: 400,
                 mediaType: 'photo',
             }).then(async image => {
                 const base64Data = await RNFS.readFile(image.path, 'base64');
@@ -100,7 +103,7 @@ export const Step1: React.FC<FaceDetectionScreenProps> = (props) => {
                 console.log('err', err);
 
             });
-        }, 1000);
+        }, 700);
 
     };
 
@@ -121,8 +124,10 @@ export const Step1: React.FC<FaceDetectionScreenProps> = (props) => {
             };
             formdata.append('selfie_file', objSelfieImage);
             const response = await apiPostFormData('ekyc/files', formdata);
-            onSuccess(response.response)
-            onCloseModal(true);
+            onSuccess(response.response);
+            if (response.response?.code == -1) {
+                onCloseModal(true, response.response?.message);
+            }
         } catch (error) {
             onCloseModal(true);
         }
@@ -136,9 +141,9 @@ export const Step1: React.FC<FaceDetectionScreenProps> = (props) => {
                 <Text style={[styles.textTitle, textTitleStyle]}>Ảnh chụp chứng minh thư/căn cước công dân</Text>
                 <Text style={[styles.textSubTitle, textSubStyle]}>Ảnh hợp lệ là ảnh chụp ngang, rõ nét không bị mất góc</Text>
                 <TouchableOpacity onPress={() => openImagePicker('cardID')}>
-                    <Image style={{ width: width, height: 200, borderRadius: 8 }}
-                        source={cardUri ? { uri: cardUri.uri } : { uri: 'https://www.madeireiraestrela.com.br/images/joomlart/demo/default.jpg' }}
-                    />
+                    {cardUri ? <Image style={{ width: width, height: 200, borderRadius: 8 }}
+                        source={{ uri: cardUri.uri }}
+                    /> : <View style={{ width: width, height: 200, borderRadius: 8, backgroundColor: 'gray' }} />}
                 </TouchableOpacity>
             </View>
             <TouchableOpacity
@@ -158,9 +163,9 @@ export const Step1: React.FC<FaceDetectionScreenProps> = (props) => {
                 <Text style={[styles.textTitle, textTitleStyle]}>Ảnh chụp xác nhận</Text>
                 <Text style={[styles.textSubTitle, textSubStyle]}>Ảnh hợp lệ là ảnh chụp chính diện, rõ khuôn mặt</Text>
                 <TouchableOpacity onPress={() => openImagePicker('portrait')}>
-                    <Image style={{ width: width, height: 300, borderRadius: 8 }}
-                        source={portraitUri ? { uri: portraitUri.uri } : { uri: 'https://www.madeireiraestrela.com.br/images/joomlart/demo/default.jpg' }}
-                    />
+                    {portraitUri ? <Image style={{ width: width, height: 300, borderRadius: 8 }}
+                        source={{ uri: portraitUri.uri }}
+                    /> : <View style={{ width: width, height: 300, borderRadius: 8, backgroundColor: 'gray' }} />}
                 </TouchableOpacity>
             </View>
             <TouchableOpacity
