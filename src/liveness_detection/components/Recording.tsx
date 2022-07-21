@@ -9,6 +9,7 @@ import { Camera } from 'react-native-vision-camera';
 import { apiPostFormData } from '../../api/serviceHandle';
 import { LoadingModal } from '../../components/loading';
 import { RecordingGuildStep } from './RecordingGuildStep';
+import RNFS from 'react-native-fs'
 
 const deviceWidth = Dimensions.get('window').width;
 const frameWidth = Dimensions.get('window').width * 0.8;
@@ -19,7 +20,7 @@ const listStep = [0, 1, 2, 3];
 export interface CameraRecordingProps {
     onSuccess: (score: number) => void;
 }
-const durationTime = Platform.OS === 'ios' ? 4500 : 5000;
+const durationTime = Platform.OS === 'ios' ? 4200 : 5000;
 
 export const CameraRecording: React.FC<CameraRecordingProps> = React.memo((props) => {
     const { onSuccess } = props;
@@ -40,6 +41,7 @@ export const CameraRecording: React.FC<CameraRecordingProps> = React.memo((props
 
 
     const onConfirm = async (data: any) => {
+        console.log('data', data);
         try {
             const formdata = new FormData();
             const objVideo = {
@@ -193,37 +195,39 @@ export const CameraRecording: React.FC<CameraRecordingProps> = React.memo((props
 
     return <View style={{ width: deviceWidth }}>
         <View style={{ width: deviceWidth, height: '100%', justifyContent: 'center', alignItems: 'center' }}>
-            <View style={{ flex: 1, justifyContent: 'center', }}>
-                {renderFrame()}
-                {device != null && hasPermission ? (
-                    <Camera
-                        preset="iframe-960x540"
-                        ref={camera}
-                        style={{ flex: 1, zIndex: 1 }}
-                        device={device}
-                        isActive={true}
-                        video={true}
-                    />
-                ) : null
-                }
-            </View>
+            <View style={{ width: deviceWidth, height: '100%', borderRadius: 50, zIndex: 2, position: 'absolute' }}>
+                <View style={{ flex: 1, justifyContent: 'center', }}>
+                    {renderFrame()}
+                    {device != null && hasPermission ? (
+                        <Camera
+                            preset="iframe-960x540"
+                            ref={camera}
+                            style={{ flex: 1, zIndex: 1 }}
+                            device={device}
+                            isActive={true}
+                            video={true}
+                        />
+                    ) : null
+                    }
+                </View>
 
-            <View style={styles.container} >
-                <ScrollView
-                    nestedScrollEnabled
-                    ref={interestRef}
-                    style={{ width: deviceWidth }}
-                    horizontal
-                    pagingEnabled
-                    snapToInterval={deviceWidth}
-                    scrollEventThrottle={16}
-                    scrollEnabled={false}
-                    bounces={true}
-                    showsHorizontalScrollIndicator={false}
-                >
-                    {listStep.map((item, index) => <RecordingGuildStep key={index.toString()} step={item} onNextStep={() => onNextStep(item)} />)}
-                </ScrollView>
+                <View style={styles.container} >
+                    <ScrollView
+                        nestedScrollEnabled
+                        ref={interestRef}
+                        style={{ width: deviceWidth }}
+                        horizontal
+                        pagingEnabled
+                        snapToInterval={deviceWidth}
+                        scrollEventThrottle={16}
+                        scrollEnabled={false}
+                        bounces={true}
+                        showsHorizontalScrollIndicator={false}
+                    >
+                        {listStep.map((item, index) => <RecordingGuildStep key={index.toString()} step={item} onNextStep={() => onNextStep(item)} />)}
+                    </ScrollView>
 
+                </View>
             </View>
         </View>
 
