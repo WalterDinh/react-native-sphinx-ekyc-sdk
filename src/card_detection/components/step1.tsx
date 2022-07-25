@@ -51,8 +51,8 @@ export const Step1: React.FC<FaceDetectionScreenProps> = (props) => {
         onCloseModal();
         setTimeout(() => {
             ImagePicker.openPicker({
-                width: 300,
-                height: 400,
+                width: 768,
+                height: 1024,
                 mediaType: 'photo',
                 includeBase64: true,
             }).then(async image => {
@@ -87,8 +87,8 @@ export const Step1: React.FC<FaceDetectionScreenProps> = (props) => {
             ImagePicker.openCamera({
                 cropping: false,
                 includeBase64: true,
-                width: 300,
-                height: 400,
+                width: 768,
+                height: 1024,
                 mediaType: 'photo',
             }).then(async image => {
                 const base64Data = await RNFS.readFile(image.path, 'base64');
@@ -201,7 +201,7 @@ export const Step1: React.FC<FaceDetectionScreenProps> = (props) => {
                             activeOpacity={1}
                             style={styles.boxButton}>
                             <TouchableOpacity
-                                style={[styles.textButtonModal, { marginBottom: 16 }]}
+                                style={styles.textButtonModal}
                                 onPress={onTakePhoto}>
                                 <Text style={styles.textModal}>Chụp ảnh</Text>
                             </TouchableOpacity>
@@ -279,11 +279,18 @@ const styles = StyleSheet.create({
     textModal: {
         fontSize: 16
     },
-    boxButton: { backgroundColor: '#fff', padding: 40, borderTopLeftRadius: 8, borderTopRightRadius: 8, zIndex: 99 },
+    boxButton: {
+        backgroundColor: '#fff',
+        padding: 24,
+        borderTopLeftRadius: 8,
+        borderTopRightRadius: 8,
+        zIndex: 99
+    },
     textButtonModal: {
         flexDirection: 'row',
         alignItems: 'center',
         width: '100%',
+        paddingVertical:8
     },
     imageLoading: {
         width: 100,

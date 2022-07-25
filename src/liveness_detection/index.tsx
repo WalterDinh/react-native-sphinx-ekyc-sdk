@@ -32,7 +32,7 @@ export const LivenessDetection: React.FC<LivenessDetectionProps> = (props) => {
                 return <CameraRecording onSuccess={onSuccess} />
             case 2:
                 return <View style={styles.container} >
-                    <Text style={styles.textScore}>{`Score: ${score}`}</Text>
+                    <Text style={styles.textScore}>{`Score: ${score*100}`}</Text>
                 </View>;
             default:
                 return <View/>

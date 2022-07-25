@@ -6,25 +6,28 @@ import { Button } from './Button';
 
 export interface RecordingGuildStepProps {
     step: number;
+    stepName: 'intro' | 'pitch_head' | 'yaw_head' | 'eyes' | 'mouth';
     onNextStep: () => void;
 }
 const deviceWidth = Dimensions.get('window').width;
 const title = 'Cách thiết lập';
 export const RecordingGuildStep: React.FC<RecordingGuildStepProps> = React.memo((props) => {
-    const { step, onNextStep } = props;
+    const { step, onNextStep, stepName } = props;
     const [isStart, setStart] = React.useState(false)
     const countdown = useCountDown(isStart ? 5 : 0);
 
 
     const renderLabel = React.useMemo(() => {
-        switch (step) {
-            case 0:
-                return `Đầu tiên, Định vị khuôn mặt của bạn trong khung hình camera. Sau đó làm theo từng bước theo hướng dẫn, có 3 bước (gật đầu, chớp mắt và đóng mở miệng), mỗi bước sẽ có 5 giây thực hiện`;
-            case 1:
+        switch (stepName) {
+            case 'intro':
+                return `Đầu tiên, Định vị khuôn mặt của bạn trong khung hình camera. Sau đó làm theo từng bước theo hướng dẫn, có 3 bước ngẫu nhiên (gật đầu,xoay đầu, chớp mắt và đóng mở miệng), mỗi bước sẽ có 5 giây thực hiện`;
+            case 'pitch_head':
                 return 'Vui lòng gật đầu';
-            case 2:
+            case 'eyes':
                 return 'Vui lòng chớp mắt';
-            case 3:
+            case 'yaw_head':
+                return 'Vui lòng xoay đầu hai bên';
+            case 'mouth':
                 return 'Vui lòng đóng mở miệng';
             default:
                 return ''
@@ -35,7 +38,7 @@ export const RecordingGuildStep: React.FC<RecordingGuildStepProps> = React.memo(
     const onPress = React.useCallback(() => {
         if (step !== 0) {
             setStart(true);
-        }
+        }        
         onNextStep();
         setTimeout(() => {
             setStart(false);

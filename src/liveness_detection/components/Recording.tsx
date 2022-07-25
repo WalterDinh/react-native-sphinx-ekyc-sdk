@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Dimensions, StyleSheet, View, ScrollView, Platform, Modal, Alert } from 'react-native';
+import { Dimensions, StyleSheet, View, ScrollView, Platform, Modal, Alert, SafeAreaView } from 'react-native';
 import {
     useCameraDevices,
 } from 'react-native-vision-camera';
@@ -9,13 +9,10 @@ import { Camera } from 'react-native-vision-camera';
 import { apiPostFormData } from '../../api/serviceHandle';
 import { LoadingModal } from '../../components/loading';
 import { RecordingGuildStep } from './RecordingGuildStep';
-import RNFS from 'react-native-fs'
-
 const deviceWidth = Dimensions.get('window').width;
 const frameWidth = Dimensions.get('window').width * 0.8;
 const frameHeight = frameWidth;
-const listStep = [0, 1, 2, 3];
-
+const dataAction = ['pitch_head', 'yaw_head', 'eyes', 'mouth']
 
 export interface CameraRecordingProps {
     onSuccess: (score: number) => void;
@@ -30,27 +27,30 @@ export const CameraRecording: React.FC<CameraRecordingProps> = React.memo((props
     const device = devices.front;
     const interestRef = React.useRef<ScrollView>(null);
     const [isLoading, setLoading] = React.useState(false);
+    const [listStep, setListStep] = React.useState(['intro'])
+
 
     React.useEffect(() => {
         (async () => {
             const status = await Camera.requestCameraPermission();
             setHasPermission(status === 'authorized');
         })();
+        setListStep([...listStep, dataAction[Math.floor(Math.random() * 4)], dataAction[Math.floor(Math.random() * 4)], dataAction[Math.floor(Math.random() * 4)]])
+
     }, []);
 
 
-
     const onConfirm = async (data: any) => {
-        console.log('data', data);
         try {
             const formdata = new FormData();
             const objVideo = {
                 uri: Platform.OS === 'ios' ? data.path.toString().replace('file://', '') : data.path,
                 type: 'video/mp4',
-                name: `${data.path}.mp4`,
+                name: `video.mp4`,
             };
+            const listActions = listStep.filter(elm => elm != 'intro');
             formdata.append('video_face', objVideo);
-            formdata.append('actions', 'pitch_head,eyes,mouth');
+            formdata.append('actions', listActions.join(','));
             const response = await apiPostFormData('liveness/video', formdata);
             if (!response.response.status) {
                 Alert.alert('Lỗi', response.response?.message);
@@ -62,7 +62,7 @@ export const CameraRecording: React.FC<CameraRecordingProps> = React.memo((props
             if (response.response?.score) {
                 onSuccess(response.response?.score);
             }
-        } catch (error) {
+        } catch (error) {            
             Alert.alert('Thông báo', 'Đã có lỗi xảy ra');
             if (interestRef.current) {
                 interestRef?.current.scrollTo({ animated: true, x: 0 });
@@ -109,8 +109,8 @@ export const CameraRecording: React.FC<CameraRecordingProps> = React.memo((props
             }, durationTime);
         }
     }
-    const onNextStep = (step: number) => {
-        switch (step) {
+    const onNextStep = (index: number) => {
+        switch (index) {
             case 0:
                 if (interestRef.current) {
                     interestRef?.current.scrollTo({ animated: true, x: deviceWidth });
@@ -120,30 +120,15 @@ export const CameraRecording: React.FC<CameraRecordingProps> = React.memo((props
                 onRecording();
                 break;
             case 2:
-                onContinueRecording(false, step);
+                onContinueRecording(false, 2);
                 break;
             case 3:
-                onContinueRecording(true, step);
+                onContinueRecording(true, 3);
                 break;
             default:
                 break;
         }
     }
-
-
-    // const onTakePhoto = async () => {
-    //     console.log("photo");
-
-    //     if (camera.current) {
-    //         const photo = await camera.current.takePhoto({
-    //             flash: 'on'
-    //         })
-    //         console.log("photo", photo);
-
-    //     }
-    // }
-
-
 
     // const renderButtonTakePhoto = () => {
     //     return (<View style={{ paddingTop: 24, paddingBottom: 40, backgroundColor: 'black', alignItems: 'center', justifyContent: 'center', }}>
@@ -155,27 +140,7 @@ export const CameraRecording: React.FC<CameraRecordingProps> = React.memo((props
 
 
     const renderFrame = () => {
-        // return (<View style={{ width: deviceWidth, height: deviceHeight, zIndex: 3, position: 'absolute', justifyContent: 'center', alignItems: 'center' }}>
-        //     <View style={{ width: deviceWidth, height: deviceHeight, borderRadius: 50, zIndex: 2, position: 'absolute' }}>
-        //         <View style={{ flexDirection: 'row', flex: 1 }}>
-        //             <View style={{ height: frameHeight, width: 32, backgroundColor: colorOutsideFrame }} />
-        //             <View style={{ flex: 1, }}>
-        //                 <View style={{ width: frameWidth, height: frameWidth, borderRadius: frameWidth / 2 }} />
-        //             </View>
-        //             <View style={{ height: frameHeight, width: 32, backgroundColor: colorOutsideFrame }} />
-        //         </View>
-        //         <View style={{ height: viewBottomHeight, width: deviceWidth, backgroundColor: colorOutsideFrame, justifyContent: 'flex-end' }} >
-        //             <View style={{ paddingTop: 24, paddingBottom: 40, backgroundColor: 'black', alignItems: 'center', justifyContent: 'center' }}>
-        //                 <TouchableOpacity onPress={onRecording} style={{ width: 60, height: 60, borderRadius: 30, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center' }}>
-        //                     <View style={{ width: 54, height: 54, borderRadius: 27, backgroundColor: 'white', borderWidth: 2, borderColor: 'black' }} />
-        //                 </TouchableOpacity>
-        //             </View>
-        //         </View>
-
-        //     </View>
-
-        // </View>)
-        return (<View style={{ flexDirection: 'row', width: deviceWidth, height: frameHeight, zIndex: 3, position: 'absolute', }}>
+        return (<View style={styles.frame}>
             <View style={{ height: frameHeight, width: 32, }} />
             <View style={{ flex: 1, justifyContent: 'space-between', }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -192,14 +157,14 @@ export const CameraRecording: React.FC<CameraRecordingProps> = React.memo((props
         </View>)
     }
 
-
     return <View style={{ width: deviceWidth }}>
         <View style={{ width: deviceWidth, height: '100%', justifyContent: 'center', alignItems: 'center' }}>
-            <View style={{ width: deviceWidth, height: '100%', borderRadius: 50, zIndex: 2, position: 'absolute' }}>
+            <View style={styles.frameContainer}>
                 <View style={{ flex: 1, justifyContent: 'center', }}>
                     {renderFrame()}
                     {device != null && hasPermission ? (
                         <Camera
+                            fps={60}
                             preset="iframe-960x540"
                             ref={camera}
                             style={{ flex: 1, zIndex: 1 }}
@@ -210,7 +175,6 @@ export const CameraRecording: React.FC<CameraRecordingProps> = React.memo((props
                     ) : null
                     }
                 </View>
-
                 <View style={styles.container} >
                     <ScrollView
                         nestedScrollEnabled
@@ -220,11 +184,11 @@ export const CameraRecording: React.FC<CameraRecordingProps> = React.memo((props
                         pagingEnabled
                         snapToInterval={deviceWidth}
                         scrollEventThrottle={16}
-                        scrollEnabled={false}
+                        scrollEnabled
                         bounces={true}
                         showsHorizontalScrollIndicator={false}
                     >
-                        {listStep.map((item, index) => <RecordingGuildStep key={index.toString()} step={item} onNextStep={() => onNextStep(item)} />)}
+                        {listStep.map((item, index) => <RecordingGuildStep key={index.toString()} stepName={item as any} step={index} onNextStep={() => onNextStep(index)} />)}
                     </ScrollView>
 
                 </View>
@@ -262,5 +226,26 @@ const styles = StyleSheet.create({
         width: frameWidth / 4,
         height: frameWidth / 4,
         borderColor: 'white'
+    },
+    frameContainer:{
+        width: deviceWidth, 
+        height: '100%', 
+        borderRadius: 50, 
+        zIndex: 2, 
+        position: 'absolute' 
+    },
+    frame:{
+        flexDirection: 'row', 
+        width: deviceWidth, 
+        height: frameHeight, 
+        zIndex: 3, 
+        position: 'absolute',
+    },
+    video: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        bottom: 0,
+        right: 0,
     }
 })
