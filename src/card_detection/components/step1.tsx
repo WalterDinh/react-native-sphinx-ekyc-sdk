@@ -4,7 +4,8 @@ import ImagePicker from 'react-native-image-crop-picker';
 import RNFS from 'react-native-fs'
 import { apiPostFormData } from '../../api/serviceHandle';
 import { LoadingModal } from '../../components/loading';
-
+import { TakeCardPhoto } from './takeCardPhoto';
+import { Camera } from 'react-native-vision-camera';
 
 export interface FaceDetectionScreenProps {
     containerStyle?: StyleProp<any>;
@@ -26,33 +27,44 @@ export interface FaceDetectionScreenProps {
 const deviceWidth = Dimensions.get('window').width;
 
 const padding = 24;
-const width = deviceWidth - padding * 2
+const width = deviceWidth - padding * 2;
+const timeoutModal = Platform.OS === 'ios' ? 700 : 0;
 export const Step1: React.FC<FaceDetectionScreenProps> = (props) => {
     const { onSuccess, textSubStyle, textTitleStyle } = props
-    const [showModal, setShowModal] = React.useState<null | 'cardID' | 'portrait' | 'loading'>(null);
+    const [showModal, setShowModal] = React.useState<null | 'cardID' | 'portrait' | 'loading' | 'camera'>(null);
     const [cardUri, setCardUri] = React.useState<null | { base64: string, uri: string, image: any }>(null);
     const [portraitUri, setPortraitUri] = React.useState<null | { base64: string, uri: string, image: any }>(null);
     const interestRef = React.useRef<ScrollView>(null);
+    const [currentIndex, setCurrentIndex] = React.useState(0);
+    const [showCamera, setShowCamera] = React.useState(false);
+    React.useEffect(() => {
+        (async () => {
+            await Camera.requestCameraPermission();
+        })();
+    }, []);
 
 
-    const openImagePicker = (type: 'cardID' | 'portrait' | 'loading') => {
+    const openImagePicker = (type: 'cardID' | 'portrait' | 'loading' | 'camera') => {
         setShowModal(type);
     }
 
     const onNext = () => {
         if (interestRef.current) {
             interestRef?.current.scrollTo({ animated: true, x: deviceWidth });
+            setCurrentIndex(1);
         }
     }
 
-
+    const onTakeCardPhoto = async (image: any) => {
+        const base64Data = await RNFS.readFile(image.path, 'base64');
+        const data = `data:jpeg;base64,${base64Data}`;
+        setCardUri({ base64: base64Data, uri: data, image: image });
+    }
 
     const onChooseImage = async () => {
         onCloseModal();
         setTimeout(() => {
             ImagePicker.openPicker({
-                width: 768,
-                height: 1024,
                 mediaType: 'photo',
                 includeBase64: true,
             }).then(async image => {
@@ -65,25 +77,30 @@ export const Step1: React.FC<FaceDetectionScreenProps> = (props) => {
                     setPortraitUri({ base64: base64Data, uri: data, image });
                 }
             });
-        }, 700);
+        }, timeoutModal);
 
     };
 
-    const onCloseModal = (isError: boolean = false, errorMessage?: string) => {
+    const onCloseModal = React.useCallback((isError: boolean = false, errorMessage?: string) => {
         setShowModal(null);
         if (isError) {
             setPortraitUri(null);
             setCardUri(null);
+            setCurrentIndex(0);
             Alert.alert('Thông báo', errorMessage ?? 'Đã có lỗi xảy ra');
             if (interestRef.current) {
                 interestRef?.current.scrollTo({ animated: true, x: 0 });
             }
         }
-    };
+    }, []);
 
     const onTakePhoto = async () => {
         onCloseModal();
         setTimeout(() => {
+            if (currentIndex == 0) {
+                setShowCamera(true);
+                return;
+            }
             ImagePicker.openCamera({
                 cropping: false,
                 includeBase64: true,
@@ -100,10 +117,9 @@ export const Step1: React.FC<FaceDetectionScreenProps> = (props) => {
                     setPortraitUri({ base64: base64Data, uri: data, image });
                 }
             }).catch((err) => {
-                console.log('err', err);
-
+                
             });
-        }, 700);
+        }, timeoutModal);
 
     };
 
@@ -112,9 +128,9 @@ export const Step1: React.FC<FaceDetectionScreenProps> = (props) => {
         try {
             const formdata = new FormData();
             const objCardImage = {
-                uri: Platform.OS === 'ios' ? cardUri?.image.path.toString().replace('file://', '') : cardUri?.image.path,
+                uri: Platform.OS === 'ios' ? cardUri?.image.path.toString().replace('file://', '') : `file://${cardUri?.image.path}`,
                 type: cardUri?.image.mime || 'image/jpg',
-                name: `image${cardUri?.image?.name}.${cardUri?.image.mime}`,
+                name: `image.jpg`,
             };
             formdata.append('card_file', objCardImage);
             const objSelfieImage = {
@@ -125,9 +141,7 @@ export const Step1: React.FC<FaceDetectionScreenProps> = (props) => {
             formdata.append('selfie_file', objSelfieImage);
             const response = await apiPostFormData('ekyc/files', formdata);
             onSuccess(response.response);
-            if (response.response?.code == -1) {
-                onCloseModal(true, response.response?.message);
-            }
+            onCloseModal(response.response?.code != 1000, response.response?.message);
         } catch (error) {
             onCloseModal(true);
         }
@@ -141,7 +155,7 @@ export const Step1: React.FC<FaceDetectionScreenProps> = (props) => {
                 <Text style={[styles.textTitle, textTitleStyle]}>Ảnh chụp chứng minh thư/căn cước công dân</Text>
                 <Text style={[styles.textSubTitle, textSubStyle]}>Ảnh hợp lệ là ảnh chụp ngang, rõ nét không bị mất góc</Text>
                 <TouchableOpacity onPress={() => openImagePicker('cardID')}>
-                    {cardUri ? <Image style={{ width: width, height: 200, borderRadius: 8 }}
+                    {cardUri ? <Image style={{ width: width, height: 200, borderRadius: 8, }}
                         source={{ uri: cardUri.uri }}
                     /> : <View style={{ width: width, height: 200, borderRadius: 8, backgroundColor: 'gray' }} />}
                 </TouchableOpacity>
@@ -177,6 +191,43 @@ export const Step1: React.FC<FaceDetectionScreenProps> = (props) => {
         </View>)
     }
 
+    const renderBottomsheetModal = () => {
+        return (<View onTouchEnd={() => onCloseModal()} style={styles.modalView}>
+            <TouchableOpacity
+                disabled
+                onPress={() => { }}
+                activeOpacity={1}
+                style={styles.boxButton}>
+                <TouchableOpacity
+                    style={styles.textButtonModal}
+                    onPress={onTakePhoto}>
+                    <Text style={styles.textModal}>Chụp ảnh</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={onChooseImage}
+                    style={styles.textButtonModal}>
+                    <Text style={styles.textModal}>Chọn từ thư viện ảnh</Text>
+                </TouchableOpacity>
+            </TouchableOpacity>
+        </View>)
+    }
+
+
+
+
+    const checkRenderModal = () => {
+        switch (showModal) {
+            case 'camera':
+                return <TakeCardPhoto onBack={() => setShowCamera(false)} onSuccess={onTakeCardPhoto} />
+            case 'loading':
+                return (<LoadingModal />)
+            default:
+                return renderBottomsheetModal()
+        }
+    }
+    if (showCamera) {
+        return <TakeCardPhoto onBack={() => setShowCamera(false)} onSuccess={onTakeCardPhoto} />
+    }
     return (
         <View style={{ flex: 1 }}>
             <ScrollView nestedScrollEnabled
@@ -193,26 +244,7 @@ export const Step1: React.FC<FaceDetectionScreenProps> = (props) => {
                 {renderSelectSelfieImage()}
             </ScrollView>
             <Modal transparent={true} animationType='fade' visible={showModal != null} onRequestClose={onCloseModal}>
-                {showModal == 'loading' ? (<LoadingModal />) :
-                    (<View onTouchEnd={() => onCloseModal()} style={styles.modalView}>
-                        <TouchableOpacity
-                            disabled
-                            onPress={() => { }}
-                            activeOpacity={1}
-                            style={styles.boxButton}>
-                            <TouchableOpacity
-                                style={styles.textButtonModal}
-                                onPress={onTakePhoto}>
-                                <Text style={styles.textModal}>Chụp ảnh</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                onPress={onChooseImage}
-                                style={styles.textButtonModal}>
-                                <Text style={styles.textModal}>Chọn từ thư viện ảnh</Text>
-                            </TouchableOpacity>
-                        </TouchableOpacity>
-                    </View>)
-                }
+                {checkRenderModal()}
             </Modal>
         </View>
     )
@@ -290,7 +322,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         width: '100%',
-        paddingVertical:8
+        paddingVertical: 8
     },
     imageLoading: {
         width: 100,

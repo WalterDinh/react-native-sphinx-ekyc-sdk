@@ -1,6 +1,6 @@
 {
   "name": "react-native-ehyc-sdk",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "",
   "homepage": "https://github.com/haluhaluhalu99/react-native-camera-sdk#readme",
   "main": "lib/index.js",
@@ -11,6 +11,7 @@
     "android",
     "ios",
     "lib",
+    "assets",
     "react-native-ehyc-sdk.podspec",
     "!android/build",
     "!.DS_Store",

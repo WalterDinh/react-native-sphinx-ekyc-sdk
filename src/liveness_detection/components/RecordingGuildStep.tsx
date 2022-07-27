@@ -20,7 +20,7 @@ export const RecordingGuildStep: React.FC<RecordingGuildStepProps> = React.memo(
     const renderLabel = React.useMemo(() => {
         switch (stepName) {
             case 'intro':
-                return `Đầu tiên, Định vị khuôn mặt của bạn trong khung hình camera. Sau đó làm theo từng bước theo hướng dẫn, có 3 bước ngẫu nhiên (gật đầu,xoay đầu, chớp mắt và đóng mở miệng), mỗi bước sẽ có 5 giây thực hiện`;
+                return `Đầu tiên, Định vị khuôn mặt của bạn trong khung hình camera. Sau đó làm theo từng bước theo hướng dẫn, có 3 bước ngẫu nhiên (gật đầu, xoay đầu, chớp mắt và đóng mở miệng), mỗi bước sẽ có 5 giây thực hiện`;
             case 'pitch_head':
                 return 'Vui lòng gật đầu';
             case 'eyes':

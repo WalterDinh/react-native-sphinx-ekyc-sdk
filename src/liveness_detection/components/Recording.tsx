@@ -61,6 +61,7 @@ export const CameraRecording: React.FC<CameraRecordingProps> = React.memo((props
             }
             if (response.response?.score) {
                 onSuccess(response.response?.score);
+                setLoading(false);
             }
         } catch (error) {            
             Alert.alert('Thông báo', 'Đã có lỗi xảy ra');
@@ -68,7 +69,6 @@ export const CameraRecording: React.FC<CameraRecordingProps> = React.memo((props
                 interestRef?.current.scrollTo({ animated: true, x: 0 });
             }
             setLoading(false);
-        } finally {
         }
     }
 
@@ -130,14 +130,7 @@ export const CameraRecording: React.FC<CameraRecordingProps> = React.memo((props
         }
     }
 
-    // const renderButtonTakePhoto = () => {
-    //     return (<View style={{ paddingTop: 24, paddingBottom: 40, backgroundColor: 'black', alignItems: 'center', justifyContent: 'center', }}>
-    //         <TouchableOpacity onPress={() => onNextStep(2)} style={{ width: 60, height: 60, borderRadius: 30, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center' }}>
-    //             <View style={{ width: 54, height: 54, borderRadius: 27, backgroundColor: 'white', borderWidth: 2, borderColor: 'black' }} />
-    //         </TouchableOpacity>
-    //     </View>)
-    // }
-
+ 
 
     const renderFrame = () => {
         return (<View style={styles.frame}>
@@ -169,8 +162,8 @@ export const CameraRecording: React.FC<CameraRecordingProps> = React.memo((props
                             ref={camera}
                             style={{ flex: 1, zIndex: 1 }}
                             device={device}
-                            isActive={true}
-                            video={true}
+                            isActive
+                            video
                         />
                     ) : null
                     }
@@ -184,7 +177,7 @@ export const CameraRecording: React.FC<CameraRecordingProps> = React.memo((props
                         pagingEnabled
                         snapToInterval={deviceWidth}
                         scrollEventThrottle={16}
-                        scrollEnabled
+                        scrollEnabled={false}
                         bounces={true}
                         showsHorizontalScrollIndicator={false}
                     >

@@ -6,11 +6,11 @@ import { Image, StyleSheet, Text, TouchableOpacity, TouchableOpacityProps, View,
 export const LoadingModal = () => {
     return (
         <View style={styles.boxImageLoading}>
-            {/* <Image
+            <Image
                 style={styles.imageLoading}
                 source={require("../../assets/loading.gif")}
                 resizeMode="contain"
-            /> */}
+            />
             <Text style={styles.textScore}>Đang xác minh...</Text>
         </View>
     )
