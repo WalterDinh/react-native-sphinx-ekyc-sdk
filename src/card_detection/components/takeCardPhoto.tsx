@@ -1,10 +1,10 @@
 import * as React from 'react'
-import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Dimensions, Image, LayoutChangeEvent, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { Camera, useCameraDevices } from 'react-native-vision-camera';
 
 const padding = 24;
 const screenWidth = Dimensions.get('window').width;
-const frameWidth = screenWidth * 0.76;
+const frameWidth = screenWidth - 32;
 const frameHeight = frameWidth * 85.6 / 52.98;
 const borderWidth = 3;
 const borderRadius = 8;
@@ -20,6 +20,12 @@ export const TakeCardPhoto: React.FC<TakeCardPhotoProps> = (props) => {
     const [hasPermission, setHasPermission] = React.useState(false);
     const devices = useCameraDevices('wide-angle-camera');
     const device = devices.back;
+    const [mainLayout, setMainLayout] = React.useState({
+        left: 0,
+        top: 0,
+        width: 0,
+        height: frameHeight,
+    });
     React.useEffect(() => {
         (async () => {
             const status = await Camera.requestCameraPermission();
@@ -28,6 +34,18 @@ export const TakeCardPhoto: React.FC<TakeCardPhotoProps> = (props) => {
 
     }, []);
 
+
+    const onGetLayout = React.useCallback((event: LayoutChangeEvent) => {
+        const { x, y, height, width } = event.nativeEvent.layout;
+        if (height !== mainLayout.height) {
+            setMainLayout({
+                left: x,
+                top: y,
+                width: width,
+                height: height,
+            });
+        }
+    }, []);
 
     const onTakePhoto = React.useCallback(async () => {
         try {
@@ -45,8 +63,9 @@ export const TakeCardPhoto: React.FC<TakeCardPhotoProps> = (props) => {
     }, [camera, onBack, onSuccess])
 
     const renderFrame = () => {
+        const height = mainLayout.height - 32;
         return (<View style={styles.frame}>
-            <View style={{ height: frameHeight, width: 32, }} />
+            <View style={{ height: height, width: 16, }} />
             <View style={{ flex: 1, justifyContent: 'space-between' }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <View style={[styles.borderFrame, styles.borderTopLeft]}>
@@ -64,7 +83,7 @@ export const TakeCardPhoto: React.FC<TakeCardPhotoProps> = (props) => {
                     <View style={[styles.borderFrame, styles.borderBottomRight]} />
                 </View>
             </View>
-            <View style={{ height: frameHeight, width: 32, }} />
+            <View style={{ height: height, width: 16, }} />
         </View>)
     }
 
@@ -79,11 +98,12 @@ export const TakeCardPhoto: React.FC<TakeCardPhotoProps> = (props) => {
     return (
         <View style={[styles.container]}>
             <View style={styles.frameContainer}>
-                <View style={{ flex: 1, justifyContent: 'center', backgroundColor: 'gray' }}>
+                <View style={{ flex: 1, justifyContent: 'center', backgroundColor: 'gray' }} onLayout={onGetLayout}  >
                     {renderFrame()}
                     {device != null && hasPermission ? (
                         <Camera
                             ref={camera}
+                            preset="high"
                             style={{ flex: 1, zIndex: 1 }}
                             device={device}
                             isActive

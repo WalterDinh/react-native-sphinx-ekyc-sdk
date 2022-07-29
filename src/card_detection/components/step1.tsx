@@ -102,6 +102,7 @@ export const Step1: React.FC<FaceDetectionScreenProps> = (props) => {
                 return;
             }
             ImagePicker.openCamera({
+                useFrontCamera: true,
                 cropping: false,
                 includeBase64: true,
                 width: 768,
@@ -110,14 +111,9 @@ export const Step1: React.FC<FaceDetectionScreenProps> = (props) => {
             }).then(async image => {
                 const base64Data = await RNFS.readFile(image.path, 'base64');
                 const data = `data:${image.mime};base64,${base64Data}`;
-                if (showModal == 'cardID') {
-                    setCardUri({ base64: base64Data, uri: data, image });
-                }
-                if (showModal == 'portrait') {
-                    setPortraitUri({ base64: base64Data, uri: data, image });
-                }
+                setPortraitUri({ base64: base64Data, uri: data, image });
             }).catch((err) => {
-                
+
             });
         }, timeoutModal);
 
@@ -176,7 +172,7 @@ export const Step1: React.FC<FaceDetectionScreenProps> = (props) => {
             <View style={styles.boxImage}>
                 <Text style={[styles.textTitle, textTitleStyle]}>Ảnh chụp xác nhận</Text>
                 <Text style={[styles.textSubTitle, textSubStyle]}>Ảnh hợp lệ là ảnh chụp chính diện, rõ khuôn mặt</Text>
-                <TouchableOpacity onPress={() => openImagePicker('portrait')}>
+                <TouchableOpacity onPress={() => onTakePhoto()}>
                     {portraitUri ? <Image style={{ width: width, height: 300, borderRadius: 8 }}
                         source={{ uri: portraitUri.uri }}
                     /> : <View style={{ width: width, height: 300, borderRadius: 8, backgroundColor: 'gray' }} />}
@@ -230,7 +226,8 @@ export const Step1: React.FC<FaceDetectionScreenProps> = (props) => {
     }
     return (
         <View style={{ flex: 1 }}>
-            <ScrollView nestedScrollEnabled
+            <ScrollView
+                nestedScrollEnabled
                 ref={interestRef}
                 style={{ width: deviceWidth }}
                 horizontal
