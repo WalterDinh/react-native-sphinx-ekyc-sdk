@@ -9,6 +9,7 @@ const api = create({
   headers: {
     'Content-type': 'application/json',
   },
+  maxBodyLength: 1000000000
 });
 
 /**

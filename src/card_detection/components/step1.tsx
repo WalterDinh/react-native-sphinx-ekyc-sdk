@@ -6,6 +6,7 @@ import { apiPostFormData } from '../../api/serviceHandle';
 import { LoadingModal } from '../../components/loading';
 import { TakeCardPhoto } from './takeCardPhoto';
 import { Camera } from 'react-native-vision-camera';
+import ImageResizer from 'react-native-image-resizer';
 
 export interface FaceDetectionScreenProps {
     containerStyle?: StyleProp<any>;
@@ -28,7 +29,7 @@ const deviceWidth = Dimensions.get('window').width;
 
 const padding = 24;
 const width = deviceWidth - padding * 2;
-const timeoutModal = Platform.OS === 'ios' ? 700 : 0;
+const timeoutModal = Platform.OS === 'ios' ? 700 : 500;
 export const Step1: React.FC<FaceDetectionScreenProps> = (props) => {
     const { onSuccess, textSubStyle, textTitleStyle } = props
     const [showModal, setShowModal] = React.useState<null | 'cardID' | 'portrait' | 'loading' | 'camera'>(null);
@@ -113,24 +114,38 @@ export const Step1: React.FC<FaceDetectionScreenProps> = (props) => {
                 const data = `data:${image.mime};base64,${base64Data}`;
                 setPortraitUri({ base64: base64Data, uri: data, image });
             }).catch((err) => {
-
+                console.log(err, 'err');
             });
         }, timeoutModal);
 
     };
 
+    const resizeImage = (path: string) => {
+        let newPath = path;
+        ImageResizer.createResizedImage(path, 500, 500, 'JPEG', 100)
+            .then(response => {
+                newPath = response.path;
+            })
+            .catch(err => {
+            });
+        return newPath
+    }
+
     const onConfirm = async () => {
         openImagePicker('loading');
         try {
             const formdata = new FormData();
+            const cardPath = resizeImage(cardUri?.image.path)
+            const portraitPath = resizeImage(portraitUri?.image.path)
+
             const objCardImage = {
-                uri: Platform.OS === 'ios' ? cardUri?.image.path.toString().replace('file://', '') : `file://${cardUri?.image.path}`,
+                uri: Platform.OS === 'ios' ? cardPath.toString().replace('file://', '') : `file://${cardPath}`,
                 type: cardUri?.image.mime || 'image/jpg',
                 name: `image.jpg`,
             };
             formdata.append('card_file', objCardImage);
             const objSelfieImage = {
-                uri: Platform.OS === 'ios' ? portraitUri?.image.path.toString().replace('file://', '') : portraitUri?.image.path,
+                uri: Platform.OS === 'ios' ? portraitPath.toString().replace('file://', '') : portraitPath,
                 type: portraitUri?.image.mime || 'image/jpg',
                 name: `image${portraitUri?.image?.name}.${portraitUri?.image.mime}`,
             };

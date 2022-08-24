@@ -18,13 +18,13 @@ export const Step2: React.FC<{ data?: FaceDetectionInfo }> = (props) => {
             <View style={{ alignItems: 'center' }}>
                 <Text style={styles.textTitle}>Thông tin cá nhân</Text>
                 <View style={{ maxWidth:'80%' }}>
-                    {renderInfo('Họ và tên', data?.info.name || '')}
-                    {renderInfo('ID', data?.info.id || '')}
-                    {renderInfo('Ngày sinh', data?.info.birthday || '')}
-                    {renderInfo('Giới tính', data?.info.gender || '')}
-                    {renderInfo('Quê quán', data?.info.origin_address || '')}
-                    {renderInfo('Thường trú', data?.info.address || '')}
-                    {renderInfo('Giá trị đến', data?.info.license_date || '')}
+                    {renderInfo('Họ và tên', data?.info?.name || '')}
+                    {renderInfo('ID', data?.info?.id || '')}
+                    {renderInfo('Ngày sinh', data?.info?.birthday || '')}
+                    {renderInfo('Giới tính', data?.info?.gender || '')}
+                    {renderInfo('Quê quán', data?.info?.origin_address || '')}
+                    {renderInfo('Thường trú', data?.info?.address || '')}
+                    {renderInfo('Giá trị đến', data?.info?.license_date || '')}
                 </View>
             </View>
             <Text style={styles.textScore}>{`Score: ${data?.score || 0}`}</Text>

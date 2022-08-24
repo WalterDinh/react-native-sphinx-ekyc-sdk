@@ -1,4 +1,4 @@
-It's built on top of `react-native-vision-camera`, `react-native-image-crop-picker` and `react-native-fs`
+It's built on top of `react-native-vision-camera`, `react-native-image-crop-picker`, `react-native-image-resizer` and `react-native-fs`
 it takes an image component and upon click, you get the image picker prompt, get the base64 string of the image and the image source changes to whatever image was picked.
 
 ## Installing
