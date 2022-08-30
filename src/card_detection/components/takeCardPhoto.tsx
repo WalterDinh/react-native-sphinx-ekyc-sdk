@@ -103,7 +103,7 @@ export const TakeCardPhoto: React.FC<TakeCardPhotoProps> = (props) => {
                     {device != null && hasPermission ? (
                         <Camera
                             ref={camera}
-                            preset="high"
+                            preset="medium"
                             style={{ flex: 1, zIndex: 1 }}
                             device={device}
                             isActive

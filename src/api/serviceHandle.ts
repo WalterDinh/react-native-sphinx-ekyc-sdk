@@ -6,10 +6,12 @@ const api = create({
   baseURL: BASE_URL,
   timeout: 120000,
   withCredentials: false,
+   
   headers: {
     'Content-type': 'application/json',
   },
-  maxBodyLength: 1000000000
+  maxBodyLength: 1048576000,
+  maxContentLength: 1048576000,
 });
 
 /**
