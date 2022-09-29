@@ -1,12 +1,11 @@
 import { create } from 'apisauce';
 import serviceUrls from './serviceUrl';
 
-const BASE_URL='http://api.sphinxjsc.com:3000/api/v1/';
+const BASE_URL='http://api.sphinxjsc.com/api/v1/';
 const api = create({
   baseURL: BASE_URL,
   timeout: 120000,
   withCredentials: false,
-   
   headers: {
     'Content-type': 'application/json',
   },
@@ -72,7 +71,7 @@ const apiGet = async (url: string, params: any) => {
  * @param {*url without host} url
  * @param {*} body
  */
-const apiPost = async (url: string, body: any) => {
+const apiPost = async (url: string, body: any) => {  
   const dataResponse = await api.post(url, JSON.stringify(body));
   return returnData(dataResponse);
 };
@@ -108,7 +107,7 @@ const apiDelete = async (url: string, body: any) => {
   return returnData(response);
 };
 
-const apiPostFormData = async (url: string, body: any) => {
+const apiPostFormData = async (url: string, body: any) => {  
   const response = await api.post(url, body, {
     headers: {
       'Content-Type': 'multipart/form-data',

@@ -1,6 +1,6 @@
 {
   "name": "react-native-ehyc-sdk",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "",
   "homepage": "https://github.com/haluhaluhalu99/react-native-camera-sdk#readme",
   "main": "lib/index.js",
@@ -48,17 +48,15 @@
     "react": "^17.0.2",
     "react-native": "^0.67.1",
     "react-native-fs": "^2.20.0",
-    "react-native-image-crop-picker": "^0.38.0",
+    "react-native-image-resizer": "^1.4.5",
     "react-native-vision-camera": "^2.13.5",
     "react-test-renderer": "^17.0.2",
-    "typescript": "^4.5.5",
-    "react-native-image-resizer": "^1.4.5"
+    "typescript": "^4.5.5"
   },
   "peerDependencies": {
     "react": "*",
-    "react-native": "*",
-    "react-native-image-crop-picker": "*"
-  },
+    "react-native": "*"
+    },
   "jest": {
     "preset": "react-native",
     "moduleFileExtensions": [
@@ -71,6 +69,7 @@
     ]
   },
   "dependencies": {
-    "apisauce": "^2.1.5"
+    "apisauce": "^2.1.5",
+    "react-native-loading-spinner-overlay": "^3.0.1"
   }
 }

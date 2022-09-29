@@ -11,25 +11,53 @@ const Stack = createNativeStackNavigator();
 function HomeScreen({ navigation }: any) {
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Button title='Face Detection' onPress={() => navigation.push('FaceDetection')} />
-      <View style={{ height: 40 }} />
+      <Button title='Chứng minh nhân dân' onPress={() => navigation.push('CMNDDetectionScreen')} />
+      <Button title='Căn cước công dân' onPress={() => navigation.push('CCCDDetectionScreen')} />
+      <Button title='Căn cước công dân gắn chip' onPress={() => navigation.push('CCCDQRDetectionScreen')} />
+      <Button title='Hộ chiếu' onPress={() => navigation.push('PassportScreen')} />
       <Button title='Liveness Detection' onPress={() => navigation.push('LivenessDetection')} />
     </View>
   );
 }
 
-function FaceDetectionScreen({ navigation }: any) {
+function CCCDDetectionScreen({ navigation }: any) {
   return (
     <View style={{ flex: 1 }}>
-      <FaceDetection token='38sphinx3' />
+      <FaceDetection type='cccd' token='sphinx1' />
     </View>
   );
 }
 
+
+function CMNDDetectionScreen({ navigation }: any) {
+  return (
+    <View style={{ flex: 1 }}>
+      <FaceDetection type='cmnd' token='sphinx1' />
+    </View>
+  );
+}
+function PassportScreen({ navigation }: any) {
+  return (
+    <View style={{ flex: 1 }}>
+      <FaceDetection type='passport' token='sphinx1' />
+    </View>
+  );
+}
+
+
+function CCCDQRDetectionScreen({ navigation }: any) {
+  return (
+    <View style={{ flex: 1 }}>
+      <FaceDetection type='qr_cccd' token='sphinx1' />
+    </View>
+  );
+}
+
+
 function LivenessDetectionScreen() {
   return (
     <View style={{ flex: 1 }}>
-      <LivenessDetection token='38sphinx3' />
+      <LivenessDetection token='sphinx1' />
     </View>
   );
 }
@@ -42,7 +70,10 @@ const App = () => {
   return <NavigationContainer>
     <Stack.Navigator>
       <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen name="FaceDetection" component={FaceDetectionScreen} />
+      <Stack.Screen name="CMNDDetectionScreen" component={CMNDDetectionScreen} />
+      <Stack.Screen name="CCCDDetectionScreen" component={CCCDDetectionScreen} />
+      <Stack.Screen name="PassportScreen" component={PassportScreen} />
+      <Stack.Screen name="CCCDQRDetectionScreen" component={CCCDQRDetectionScreen} />
       <Stack.Screen name="LivenessDetection" component={LivenessDetectionScreen} />
     </Stack.Navigator>
   </NavigationContainer>
